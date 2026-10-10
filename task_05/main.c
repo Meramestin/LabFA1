@@ -115,6 +115,8 @@ int main(const int argc, char *argv[]) {
         if (status == OK) status = integral((char)('a' + i), epsilon, &integrals[i]);
     }
     if (status != OK) { fprintf(stderr, "Calculation failed (%d)\n", status); return status; }
-    for (int i = 0; i < 4; ++i) printf("%c series %.18Lg integral %.18Lg\n", 'a' + i, sums[i], integrals[i]);
+    for (int i = 0; i < 4; ++i)
+        printf("%c series %.*Lg integral %.*Lg\n", 'a' + i,
+               DECIMAL_DIG, sums[i], DECIMAL_DIG, integrals[i]);
     return fflush(stdout) == EOF || ferror(stdout) ? FILE_ERROR : OK;
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <float.h>
 #include <string.h>
 #include "../common.h"
 
@@ -92,11 +93,12 @@ int print_solutions(const struct equation_solution *solutions, const int count) 
     }
     for (int i = 0; i < count; ++i) {
         const struct equation_solution *solution = &solutions[i];
-        printf("%.12Lg %.12Lg %.12Lg:", solution->coefficients[0],
-               solution->coefficients[1], solution->coefficients[2]);
+        printf("%.*Lg %.*Lg %.*Lg:", DECIMAL_DIG, solution->coefficients[0],
+               DECIMAL_DIG, solution->coefficients[1], DECIMAL_DIG, solution->coefficients[2]);
         if (solution->root_count == -1) printf(" all real numbers");
         else if (solution->root_count == 0) printf(" no real roots");
-        else for (int j = 0; j < solution->root_count; ++j) printf(" %.12Lg", solution->roots[j]);
+        else for (int j = 0; j < solution->root_count; ++j)
+            printf(" %.*Lg", DECIMAL_DIG, solution->roots[j]);
         putchar('\n');
         if (ferror(stdout)) return FILE_ERROR;
     }

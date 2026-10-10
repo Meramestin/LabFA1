@@ -28,6 +28,9 @@ int main(void) {
     assert(constant_limit(LN2, 1e-12L, &value) == OK);
     assert(fabsl(value - expected[LN2]) <= 1e-12L);
     assert(constant_series(E, 1e-6L, NULL) == INVALID);
+    assert(constant_equation(GAMMA, 1e30L, &value) == OK && isfinite(value));
+    assert(equation_value(E, 0, 0, &value) == INVALID);
+    assert(equation_value(E, -1, 0, &value) == INVALID);
     puts("task_02: 15 methods at two precisions passed");
     return 0;
 }

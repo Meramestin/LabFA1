@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <float.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include "../common.h"
@@ -183,6 +184,7 @@ int bisect(double left, double right, const double epsilon,
 int main(const int argc, char *argv[]) {
     long double parsed = 1e-9L;
     if (argc > 2 || (argc == 2 && parse_real(argv[1], &parsed) != OK) || parsed <= 0) return INVALID;
+    if (parsed > DBL_MAX) return OVERFLOW;
     const double epsilon = (double)parsed;
     if (!isfinite(epsilon) || epsilon <= 0) return INVALID;
     int convex, status;
@@ -190,7 +192,7 @@ int main(const int argc, char *argv[]) {
     status = convex_polygon(epsilon, &convex, 4, 0.0,0.0, 2.0,0.0, 2.0,2.0, 0.0,2.0);
     if (status == OK) printf("convex: %d\n", convex);
     if (status == OK) status = polynomial(2, &value, 2, 1.0,-3.0,2.0);
-    if (status == OK) printf("polynomial: %.12g\n", value);
+    if (status == OK) printf("polynomial: %.*g\n", DECIMAL_DIG, value);
     long long numbers[5];
     size_t count;
     if (status == OK) status = find_kaprekar(10, numbers, 5, &count, 5, "1", "9", "45", "55", "2");
@@ -200,13 +202,13 @@ int main(const int argc, char *argv[]) {
         putchar('\n');
     }
     if (status == OK) status = geometric_mean(epsilon, &value, 3, 1.0,4.0,16.0);
-    if (status == OK) printf("geometric mean: %.12g\n", value);
+    if (status == OK) printf("geometric mean: %.*g\n", DECIMAL_DIG, value);
     if (status == OK) status = fast_power(2, -3, epsilon, &value);
-    if (status == OK) printf("power: %.12g\n", value);
+    if (status == OK) printf("power: %.*g\n", DECIMAL_DIG, value);
     if (status == OK) status = bisect(0, 2, epsilon, square_equation, &value);
-    if (status == OK) printf("root x*x-2: %.12g\n", value);
+    if (status == OK) printf("root x*x-2: %.*g\n", DECIMAL_DIG, value);
     if (status == OK) status = bisect(0, 1, epsilon * 10, cosine_equation, &value);
-    if (status == OK) printf("root cos(x)-x: %.12g\n", value);
+    if (status == OK) printf("root cos(x)-x: %.*g\n", DECIMAL_DIG, value);
     if (status != OK) fprintf(stderr, "Calculation failed (%d)\n", status);
     return fflush(stdout) == EOF || ferror(stdout) ? FILE_ERROR : status;
 }

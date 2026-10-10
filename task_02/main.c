@@ -99,6 +99,7 @@ int constant_series(const int kind, const long double epsilon, long double *resu
 
 int equation_value(const int kind, const long double x, const long double derivative, long double *value) {
     if (value == NULL || !isfinite(x) || !isfinite(derivative)) return INVALID;
+    if (kind == E && x <= 0) return INVALID;
     switch (kind) {
         case E: *value = logl(x) - 1; break;
         case PI: *value = sinl(x); break;
@@ -117,8 +118,7 @@ int constant_equation(const int kind, const long double epsilon, long double *re
     long double right = kind == PI ? 4 : kind == E ? 3 : kind == ROOT2 ? 2 : 1;
     long double derivative = 0;
     if (kind == GAMMA) {
-        long double h = sqrtl(epsilon / 128);
-        if (h > 0.01L + epsilon * LDBL_EPSILON) h = 0.01L;
+        const long double h = fminl(0.01L, sqrtl(epsilon / 128));
         if (40 * h * h / 6 + 64 * LDBL_EPSILON / h > epsilon / 4) return NO_CONVERGENCE;
         derivative = (tgammal(1 + h) - tgammal(1 - h)) / (2 * h);
         if (!isfinite(derivative)) return OVERFLOW;
@@ -154,6 +154,8 @@ int main(const int argc, char *argv[]) {
     }
     if (status != OK) { fprintf(stderr, "Calculation failed (%d)\n", status); return status; }
     const char *names[5] = {"e", "pi", "ln2", "sqrt2", "gamma"};
-    for (int i = 0; i < 5; ++i) printf("%s limit %.18Lg series %.18Lg equation %.18Lg\n", names[i], values[i][0], values[i][1], values[i][2]);
+    for (int i = 0; i < 5; ++i)
+        printf("%s limit %.*Lg series %.*Lg equation %.*Lg\n", names[i],
+               DECIMAL_DIG, values[i][0], DECIMAL_DIG, values[i][1], DECIMAL_DIG, values[i][2]);
     return fflush(stdout) == EOF || ferror(stdout) ? FILE_ERROR : OK;
 }
